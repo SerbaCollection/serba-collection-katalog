@@ -112,8 +112,30 @@ function byCat(cat,activeOnly){return products.filter(p=>p.category===cat&&(!act
 
 function showImageViewer(src,label){if(!src)return;const v=$('imageViewer');$('viewerPhoto').src=src;$('viewerPhoto').alt=label||'Pratinjau foto';$('viewerLabel').textContent=label||'Foto produk';v.classList.remove('hidden');document.body.style.overflow='hidden';$('closeViewer').focus()}
 function hideImageViewer(){$('imageViewer').classList.add('hidden');$('viewerPhoto').removeAttribute('src');document.body.style.overflow=''}
-$('closeViewer').onclick=hideImageViewer;
-$('imageViewer').addEventListener('click',e=>{if(e.target===$('imageViewer'))hideImageViewer()});
+
+const closeViewerBtn = $('closeViewer');
+const imageViewerEl = $('imageViewer');
+
+if (closeViewerBtn) {
+  closeViewerBtn.onclick = hideImageViewer;
+}
+
+if (imageViewerEl) {
+  imageViewerEl.addEventListener('click', e => {
+    if (e.target === imageViewerEl) hideImageViewer();
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (
+    e.key === 'Escape' &&
+    imageViewerEl &&
+    !imageViewerEl.classList.contains('hidden')
+  ) {
+    hideImageViewer();
+  }
+});
+
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('imageViewer').classList.contains('hidden'))hideImageViewer()});
 function coverPathFor(cat,adminMode=false){const explicit=categoryCovers[cat];if(explicit)return explicit;const p=byCat(cat,!adminMode).find(p=>p.image_path);return p?.image_path||null}
 function updateCoverPreview(){if(!adminCategory)return;const path=coverPathFor(adminCategory,true);$('categoryCoverPreview').src=path?imageUrl(path):'';$('categoryCoverPreview').style.visibility=path?'visible':'hidden'}
