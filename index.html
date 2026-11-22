@@ -122,6 +122,16 @@ input,select,textarea{background:#171512;color:#fff3dc;border:1px solid #7a6038}
 .pdf-last{display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:110px}
 .pdf-last .pdf-logo-word{font-size:43px}.pdf-last .pdf-logo-sub{font-size:10px;letter-spacing:7px}.pdf-last h2{font:normal 46px Georgia,serif;margin:85px 0 20px;color:#f8e4b4}.pdf-last p{font-size:17px;line-height:1.8}.pdf-last-wa{margin-top:60px;color:#e7c07c;font-size:15px;letter-spacing:2px;line-height:2.2}.pdf-last-wa strong{font-size:29px;color:#fff0ca}
 
+
+/* PDF renderer: fixed A4 pages, rendered one at a time to avoid blank offscreen capture */
+.pdf-render-stage{position:fixed!important;left:0!important;top:0!important;width:794px!important;height:1123px!important;z-index:90000!important;background:#090807!important;overflow:hidden!important;opacity:1!important;pointer-events:none!important}
+.pdf-render-stage .pdf-front,.pdf-render-stage .pdf-last,.pdf-render-stage .pdf-category{width:794px!important;height:1123px!important;min-height:1123px!important;margin:0!important;overflow:hidden!important;break-before:auto!important;break-after:auto!important;page-break-before:auto!important;page-break-after:auto!important}
+.pdf-render-stage .pdf-category{padding:38px 46px 44px!important}
+.pdf-render-stage .pdf-category-head{min-height:190px!important;margin-bottom:20px!important}
+.pdf-render-stage .pdf-motif-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 22px!important}
+.pdf-render-stage .pdf-motif-image{height:300px!important}
+.pdf-render-stage .pdf-motif-name{font-size:15px!important;padding-top:8px!important}
+.pdf-render-status{position:fixed;z-index:90001;inset:0;background:rgba(7,6,5,.92);display:flex;align-items:center;justify-content:center;color:#f4d48e;font:700 22px system-ui;text-align:center;padding:20px}
 </style></head><body>
 <header class="top"><div class="brand"><div class="logo" aria-label="SERBA COLLECTION"><div><span>S</span><span>E</span><span>R</span><span>B</span><span>A</span></div><small>COLLECTION</small></div><div class="tag">MATERIAL INTERIOR & EKSTERIOR</div></div><div class="actions"><button class="btn secondary" id="goCatalog">Katalog</button><button class="btn" id="downloadCatalogPdf" type="button">↓ Katalog PDF</button><button class="btn secondary" id="goAdmin">Masuk Admin</button></div></header>
 <main class="wrap"><div id="message" class="notice hidden" role="status"></div><section id="catalogView"><div class="hero" id="productHero"><div class="hero-content"><div class="eyebrow">PREMIUM INTERIOR & EXTERIOR MATERIALS</div><h1>Ruang Impian, Material Pilihan.</h1><p>Temukan material dan motif pilihan untuk dinding, lantai, plafon, serta eksterior.</p></div><div id="heroProductPhotos" class="hero-photos" aria-label="Cover produk"></div></div><div id="publicCategories"><div class="section-head"><h2>Kategori Produk</h2></div><div class="cards" id="categoryCards"></div></div><div id="publicMotifs" class="hidden"><div class="crumb"><button id="backCategories" class="lux-back" aria-label="Kembali ke kategori" title="Kembali ke kategori"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></button></div><h2 id="publicCategoryTitle"></h2><div class="toolbar"><input id="publicSearch" placeholder="Cari nama motif atau produk..."></div><div class="cards" id="motifCards"></div></div><section id="orderView" class="hidden"><div class="crumb"><button type="button" id="backMotifs" class="lux-back" aria-label="Kembali ke pilihan motif" title="Kembali ke pilihan motif"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></button></div><div class="order-layout"><div class="order-photo-card"><img id="orderPhoto" alt="Foto motif yang dipilih"><div class="order-photo-caption"><span id="orderCategory"></span><h2 id="orderProduct"></h2><p id="orderDescription" class="muted"></p></div></div><form id="orderForm" class="order-panel"><div class="order-kicker">✦ KONFIRMASI PEMESANAN</div><h2>Lengkapi pesanan Anda</h2><p class="muted">Isi data pengiriman, lalu cek rincian sebelum menghubungi admin.</p><div class="order-summary"><div><small>Harga per pcs</small><strong id="orderUnitPrice"></strong></div><div><small>Jumlah kebutuhan</small><strong id="orderQuantityLabel">1 pcs</strong></div></div><div class="order-fields"><label class="field"><span>Nama lengkap <b>*</b></span><input id="orderName" required maxlength="120" placeholder="Contoh: Budi Santoso" autocomplete="name"></label><label class="field"><span>Alamat lengkap pengiriman <b>*</b></span><textarea id="orderAddress" required maxlength="700" rows="3" placeholder="Jalan, nomor rumah, RT/RW, kecamatan, kota, provinsi, kode pos" autocomplete="street-address"></textarea></label><label class="field"><span>Jumlah kebutuhan (pcs) <b>*</b></span><div class="quantity-stepper"><button type="button" id="qtyMinus" aria-label="Kurangi jumlah">−</button><input id="orderQuantity" type="number" min="1" max="100000" step="1" value="1" required><button type="button" id="qtyPlus" aria-label="Tambah jumlah">+</button></div></label></div><div class="order-total"><div><small>Subtotal sementara</small><strong id="orderSubtotal">Rp0</strong></div><p>Belum termasuk ongkir, potongan harga (discount), dan hasil akhir negosiasi harga per produk. Total pembayaran dikonfirmasi oleh admin.</p></div><button class="checkout-btn" type="submit">✆ Konfirmasi Pesanan via WhatsApp <span>↗</span></button><p class="order-footnote">Anda akan diarahkan ke WhatsApp 0813-8995-786. Tidak ada pembayaran otomatis di website.</p></form></div></section></section>
@@ -237,38 +247,60 @@ async function replacePhoto(p){let inp=document.createElement('input');inp.type=
 async function toggleProduct(p){let {error}=await db.from('catalog_products').update({is_active:p.is_active===false}).eq('id',p.id);if(error)return notice(error.message,true);await loadProducts();notice('Status motif berhasil diubah.')}
 async function deleteProduct(p){if(!confirm('Hapus permanen motif '+p.name+'?'))return;let {error}=await db.from('catalog_products').delete().eq('id',p.id);if(error)return notice('Gagal menghapus: '+error.message,true);if(p.image_path)await db.storage.from(BUCKET).remove([p.image_path]);await loadProducts();notice('Motif berhasil dihapus.')}
 
-/* PDF katalog premium: download langsung, tanpa print dialog / about:blank. */
+/* PDF premium: render each A4 page on-screen to canvas, then save as one PDF. */
 async function openPdfCatalog(){
-  const btn=$('downloadCatalogPdf');
-  const visible=products.filter(p=>p.is_active!==false);
-  if(!visible.length)return notice('Belum ada motif aktif untuk dibuat menjadi PDF.',true);
-  if(typeof window.html2pdf!=='function')return notice('Library PDF belum termuat. Periksa koneksi internet lalu muat ulang.',true);
-  const groups=[...new Set(visible.map(p=>p.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
-  const safe=escapeHtml;
-  const cardsFor=cat=>visible.filter(p=>p.category===cat).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.name.localeCompare(b.name,'id'));
-  const logo='<div class="pdf-logo"><div class="pdf-logo-word"><span>S</span><span>E</span><span>R</span><span>B</span><span>A</span></div><div class="pdf-logo-sub">COLLECTION</div></div>';
-  const pages=groups.map((cat,i)=>{
-    const items=cardsFor(cat);
-    const prices=[...new Set(items.map(p=>Number(p.price)))];
-    const priceLabel=prices.length===1?rupiah(prices[0])+' / pcs':'Harga katalog: konfirmasi admin';
-    const cover=coverPathFor(cat,false);
-    const coverHtml=cover?'<img class="pdf-category-cover" crossorigin="anonymous" src="'+safe(imageUrl(cover))+'" alt="">':'';
-    const cards=items.map(p=>'<article class="pdf-motif"><div class="pdf-motif-image">'+(p.image_path?'<img crossorigin="anonymous" src="'+safe(imageUrl(p.image_path))+'" alt="'+safe(p.name)+'">':'<span>SERBA COLLECTION</span>')+'</div><div class="pdf-motif-name">'+safe(p.name)+'</div></article>').join('');
-    return '<section class="pdf-category"><div class="pdf-category-head"><div class="pdf-category-title"><div class="pdf-kicker">SERBA COLLECTION &nbsp; / &nbsp; KOLEKSI '+String(i+1).padStart(2,'0')+'</div><h2>'+safe(cat)+'</h2><div class="pdf-universal-price">HARGA KATALOG &nbsp; '+safe(priceLabel)+'</div><div class="pdf-count">'+items.length+' PILIHAN MOTIF</div></div>'+coverHtml+'</div><div class="pdf-motif-grid">'+cards+'</div></section>';
-  }).join('');
-  const el=document.createElement('div');el.className='pdf-document';
-  el.innerHTML='<section class="pdf-front"><div class="pdf-front-glow"></div><div class="pdf-cover-logo">'+logo+'</div><div class="pdf-cover-rule"></div><div class="pdf-edition">LUXURY MATERIAL COLLECTION</div><h1>KATALOG<br>PRODUK</h1><div class="pdf-cover-caption">INTERIOR &amp; EKSTERIOR<br>KOLEKSI MOTIF PILIHAN</div><div class="pdf-cover-bottom">SERBA COLLECTION &nbsp; • &nbsp; PREMIUM CATALOG</div></section>'+pages+'<section class="pdf-last">'+logo+'<h2>Wujudkan Ruang Impian.</h2><p>Harga katalog merupakan harga sebelum diskon dan negosiasi. Stok, ongkos kirim, dan harga akhir dikonfirmasi oleh admin.</p><div class="pdf-last-wa">KONFIRMASI PEMESANAN<br><strong>0813-8995-786</strong></div></section>';
-  document.body.appendChild(el);
-  const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Menyiapkan PDF…';
-  try{
-    await Promise.all([...el.querySelectorAll('img')].map(img=>new Promise(resolve=>{
-      if(img.complete)return resolve();img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});
-    })));
-    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-    await window.html2pdf().set({margin:0,filename:'SERBA-COLLECTION-Katalog-Premium.pdf',image:{type:'jpeg',quality:0.96},html2canvas:{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#090807',scrollX:0,scrollY:0,windowWidth:794},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],before:'.pdf-category,.pdf-last',avoid:'.pdf-motif'}}).from(el).save();
-    notice('Katalog PDF berhasil diproses. Periksa folder Unduhan perangkat Anda.');
-  }catch(e){console.error('Gagal membuat PDF:',e);notice('Gagal membuat PDF: '+e.message,true)}
-  finally{el.remove();btn.disabled=false;btn.textContent=oldLabel}
+ const btn=$('downloadCatalogPdf');
+ const visible=products.filter(p=>p.is_active!==false&&p.category);
+ if(!visible.length)return notice('Belum ada motif aktif untuk dibuat menjadi PDF.',true);
+ if(typeof window.html2canvas!=='function'||!window.jspdf?.jsPDF)return notice('Library pembuat PDF belum termuat. Refresh halaman dan coba lagi.',true);
+ const groups=[...new Set(visible.map(p=>p.category))].sort((a,b)=>a.localeCompare(b,'id'));
+ const safe=escapeHtml;
+ const logo='<div class="pdf-logo"><div class="pdf-logo-word"><span>S</span><span>E</span><span>R</span><span>B</span><span>A</span></div><div class="pdf-logo-sub">COLLECTION</div></div>';
+ const coverPage='<section class="pdf-front"><div class="pdf-cover-logo">'+logo+'</div><div class="pdf-cover-rule"></div><div class="pdf-edition">LUXURY MATERIAL COLLECTION</div><h1>KATALOG<br>PRODUK</h1><div class="pdf-cover-caption">INTERIOR &amp; EKSTERIOR<br>KOLEKSI MOTIF PILIHAN</div><div class="pdf-cover-bottom">SERBA COLLECTION &nbsp; • &nbsp; PREMIUM CATALOG</div></section>';
+ const pages=[coverPage];
+ for(const [ci,cat] of groups.entries()){
+  const items=visible.filter(p=>p.category===cat).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.name.localeCompare(b.name,'id'));
+  const prices=[...new Set(items.map(p=>Number(p.price)))];
+  const priceLabel=prices.length===1?rupiah(prices[0])+' / pcs':'Harga katalog: konfirmasi admin';
+  const cover=coverPathFor(cat,false);
+  for(let start=0;start<items.length;start+=4){
+   const chunk=items.slice(start,start+4);
+   const coverHtml=cover?'<img class="pdf-category-cover" crossorigin="anonymous" src="'+safe(imageUrl(cover))+'" alt="">':'';
+   const cards=chunk.map(p=>'<article class="pdf-motif"><div class="pdf-motif-image">'+(p.image_path?'<img crossorigin="anonymous" src="'+safe(imageUrl(p.image_path))+'" alt="'+safe(p.name)+'">':'<span>SERBA COLLECTION</span>')+'</div><div class="pdf-motif-name">'+safe(p.name)+'</div></article>').join('');
+   pages.push('<section class="pdf-category"><div class="pdf-category-head"><div class="pdf-category-title"><div class="pdf-kicker">SERBA COLLECTION &nbsp; / &nbsp; KOLEKSI '+String(ci+1).padStart(2,'0')+(start?' &nbsp; • &nbsp; LANJUTAN':'')+'</div><h2>'+safe(cat)+'</h2><div class="pdf-universal-price">HARGA KATALOG &nbsp; '+safe(priceLabel)+'</div><div class="pdf-count">'+items.length+' PILIHAN MOTIF</div></div>'+coverHtml+'</div><div class="pdf-motif-grid">'+cards+'</div></section>');
+  }
+ }
+ pages.push('<section class="pdf-last">'+logo+'<h2>Terima Kasih</h2><p>Temukan material pilihan untuk setiap ruang impian Anda.</p><div class="pdf-last-wa">KONSULTASI &amp; PEMESANAN<br><strong>0813-8995-786</strong></div></section>');
+ const stage=document.createElement('div');stage.className='pdf-render-stage';stage.setAttribute('aria-hidden','true');
+ const status=document.createElement('div');status.className='pdf-render-status';status.textContent='Menyiapkan katalog PDF premium…';
+ document.body.append(stage,status);
+ const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Membuat PDF…';
+ const originalScrollY=window.scrollY;
+ try{
+  const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+  for(let i=0;i<pages.length;i++){
+   status.textContent='Membuat PDF premium — halaman '+(i+1)+' dari '+pages.length;
+   stage.innerHTML=pages[i];
+   const images=[...stage.querySelectorAll('img')];
+   await Promise.all(images.map(img=>new Promise(resolve=>{
+    if(img.complete)return resolve();
+    img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});
+    setTimeout(resolve,10000);
+   })));
+   if(document.fonts?.ready)await document.fonts.ready;
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   const canvas=await window.html2canvas(stage,{scale:1.5,useCORS:true,allowTaint:false,backgroundColor:'#090807',width:794,height:1123,windowWidth:Math.max(window.innerWidth,794),scrollX:0,scrollY:-window.scrollY,logging:false});
+   if(!canvas.width||!canvas.height)throw Error('Gagal merender halaman '+(i+1));
+   const ctx=canvas.getContext('2d');const pixels=ctx.getImageData(0,0,Math.min(30,canvas.width),Math.min(30,canvas.height)).data;
+   let allWhite=true;for(let j=0;j<pixels.length;j+=4){if(pixels[j]<245||pixels[j+1]<245||pixels[j+2]<245){allWhite=false;break}}
+   if(allWhite)throw Error('Halaman '+(i+1)+' terdeteksi kosong. PDF tidak disimpan.');
+   if(i)pdf.addPage();
+   pdf.addImage(canvas.toDataURL('image/jpeg',0.91),'JPEG',0,0,210,297,undefined,'FAST');
+  }
+  pdf.save('SERBA-COLLECTION-Katalog-Premium.pdf');
+  notice('PDF premium berhasil dibuat ('+pages.length+' halaman). Periksa folder Unduhan.');
+ }catch(e){console.error('Gagal membuat PDF:',e);notice('PDF tidak berhasil dibuat: '+e.message,true)}
+ finally{stage.remove();status.remove();btn.disabled=false;btn.textContent=oldLabel;window.scrollTo(0,originalScrollY)}
 }
 $('downloadCatalogPdf').onclick=openPdfCatalog;
 
