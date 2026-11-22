@@ -138,7 +138,7 @@ input,select,textarea{background:#171512;color:#fff3dc;border:1px solid #7a6038}
 <section id="adminView" class="hidden"><div class="section-head"><h2>Dashboard Admin</h2><button id="logout" class="btn danger hidden">Keluar</button></div><div id="loginBox" class="panel"><h3>Login Admin</h3><p class="muted">Gunakan email dan password akun Supabase Authentication.</p><form id="loginForm" class="grid2"><div class="field"><label>Email</label><input id="email" type="email" required autocomplete="username"></div><div class="field"><label>Password</label><input id="password" type="password" required autocomplete="current-password"></div><div><button class="btn dark" type="submit">Login Admin</button></div></form></div><div id="adminArea" class="hidden"><p class="muted">Pilih kategori. Harga massal hanya mengubah motif di kategori yang sedang dibuka.</p><div class="panel" id="appearancePanel"><h3>✦ Tampilan & Background Website</h3><p class="muted">Ubah nuansa seluruh katalog pelanggan. Pilihan disimpan di Supabase dan berlaku untuk semua pengunjung.</p><div class="grid3"><button type="button" class="theme-swatch theme-black" data-theme="black" aria-pressed="true">Black Gold</button><button type="button" class="theme-swatch theme-marble" data-theme="marble" aria-pressed="false">Gold Marble</button><button type="button" class="theme-swatch theme-royal" data-theme="royal" aria-pressed="false">Royal Gold</button></div><div class="grid2 spaced"><div class="field"><label>Upload foto background (JPG/PNG/WebP, maksimal 5 MB)</label><input id="backgroundFile" type="file" accept="image/jpeg,image/png,image/webp"><p class="muted">Gunakan foto tekstur marmer hitam, interior mewah, atau motif gold. Foto disimpan di Supabase Storage.</p></div><div class="field"><label>Preview background saat ini</label><img id="backgroundPreview" class="background-preview" alt="Preview background katalog"></div></div><div class="actions spaced"><button id="saveAppearance" class="btn dark" type="button">Simpan Tampilan Website</button><button id="clearBackground" class="btn secondary" type="button">Hapus Foto Background</button></div><p id="appearanceStatus" class="muted"></p></div><div id="adminCategories"><div class="section-head"><h3>Pilih Kategori</h3><button id="showNewCategory" class="btn">+ Kategori Baru</button></div><div class="panel hidden" id="newCategoryBox"><form id="newCategoryForm" class="grid2"><div class="field"><label>Nama kategori</label><input id="newCategoryName" placeholder="Contoh: WPC Outdoor" required></div><div class="field"><label>&nbsp;</label><button class="btn dark" type="submit">Buat Kategori</button></div></form><p class="muted">Kategori disimpan sebagai nama kategori pada produk. Kategori tanpa motif hanya tampil di dashboard admin pada sesi ini.</p></div><div class="cards" id="adminCategoryCards"></div></div><div id="adminMotifs" class="hidden"><div class="crumb"><button id="backAdminCategories">← Dashboard kategori</button></div><div class="section-head"><h2 id="adminCategoryTitle"></h2><button type="button" class="btn secondary" id="renameCategory">✎ Edit Nama Kategori</button><button class="btn" id="toggleAddMotif">+ Tambah Motif</button></div><div class="cover-editor"><h3>✦ Cover Kategori</h3><p class="muted">Atur cover kategori ini secara terpisah dari foto motif. Ukuran kartu tetap dan gambar ditampilkan utuh.</p><img id="categoryCoverPreview" class="cover-preview" alt="Cover kategori"><div class="field"><label>Pilih foto cover kategori (JPG, PNG, WebP, maksimal 8 MB)</label><input type="file" id="categoryCoverFile" accept="image/jpeg,image/png,image/webp"></div><div class="actions"><button type="button" class="btn dark" id="saveCategoryCover">Simpan Cover Kategori</button><button type="button" class="btn secondary" id="removeCategoryCover">Gunakan Foto Motif Pertama</button><button type="button" class="btn secondary" id="previewCategoryCover">🔍 Perbesar Cover</button></div><p class="muted" id="coverStatus"></p></div><div id="addMotifBox" class="panel hidden"><h3>Tambah Motif</h3><form id="productForm"><div class="grid2"><div class="field"><label>Nama motif / produk</label><input id="pName" placeholder="Contoh: WPC Wallpanel - Walnut" required></div><div class="field"><label>Harga (Rp)</label><input id="pPrice" type="number" min="0" step="1" required></div><div class="field"><label>Foto motif (upload langsung)</label><input id="pImage" type="file" accept="image/*" required></div><div class="field"><label>Urutan tampilan</label><input id="pSort" type="number" value="0"></div></div><div class="field spaced"><label>Deskripsi (opsional)</label><textarea id="pDescription" placeholder="Ukuran, bahan, atau keterangan motif"></textarea></div><div class="spaced"><button class="btn dark" id="saveProduct" type="submit">Upload & Simpan Motif</button></div></form></div><div class="panel" id="bulkUploader"><h3>📷 Upload Banyak Foto Sekaligus</h3><p class="muted">Pilih beberapa foto dalam kategori ini. Setiap foto otomatis menjadi satu motif. Isi nama motif sendiri, tanpa mengikuti nama file. Semua foto memakai satu harga kategori. Maksimal 8 MB per foto.</p><div class="field"><label>Pilih foto motif (bisa lebih dari satu)</label><p class="muted">Tips: klik Pilih File, lalu tekan Ctrl+A untuk memilih semua foto dalam folder. Atau tahan Ctrl untuk memilih beberapa.</p><label>Harga kategori untuk seluruh foto (Rp)</label><input id="multiDefaultPrice" type="number" min="0" step="1" placeholder="Contoh: 79800"><label style="margin-top:10px">Pilih semua foto yang akan dijadikan motif</label><input id="multiImages" type="file" accept="image/*" multiple></div><div id="multiPreview" class="spaced"></div><div class="spaced"><button class="btn dark" type="button" id="saveMulti" disabled>Simpan Semua Motif</button></div><p id="multiStatus" class="muted" role="status"></p></div><div class="panel"><h3>Opsi A — Satu Harga untuk Semua Motif</h3><p class="muted">Harga ini akan diterapkan hanya ke motif kategori yang sedang dibuka. Belum tersimpan sebelum klik tombol Simpan Harga Kategori.</p><div class="grid2"><div class="field"><label>Harga sama (Rp)</label><input id="bulkPrice" type="number" min="0" step="1" placeholder="Contoh: 79800"></div><div class="field"><label>&nbsp;</label><button id="applyBulk" class="btn" type="button">Terapkan ke Semua Motif</button></div></div></div><div class="panel"><h3>Opsi B — Harga Berbeda per Motif</h3><p class="muted">Edit angka pada tiap baris, lalu simpan sekaligus untuk kategori ini.</p><div class="tablewrap"><table class="price-table"><thead><tr><th>Motif</th><th>Harga saat ini</th><th>Harga baru (Rp)</th></tr></thead><tbody id="priceRows"></tbody></table></div><div class="toolbar"><button class="btn dark" id="savePrices">Simpan Harga Kategori Ini</button><button class="btn secondary"  id="resetPrices">Batalkan Perubahan</button></div><div id="priceStatus" class="muted"></div></div><div class="panel"><h3>Kelola Motif & Foto</h3><div id="manageMotifList"></div></div></div></div></section></main><footer class="footer">SERBA COLLECTION · Interior & Exterior Materials</footer>
 <div id="imageViewer" class="image-viewer hidden" role="dialog" aria-modal="true" aria-label="Pratinjau gambar"><button type="button" id="closeViewer" class="viewer-close" aria-label="Tutup pratinjau">×</button><img id="viewerPhoto" alt="Foto motif diperbesar"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script><script>
 // GANTI DUA NILAI DI BAWAH DENGAN MILIK PROJECT SUPABASE ANDA.
 const SUPABASE_URL = 'https://vgscmifbdjsyvfgplfve.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dAM4yBFJY9ufZyEyEpMrpw_JC02TZWs';
@@ -247,60 +247,95 @@ async function replacePhoto(p){let inp=document.createElement('input');inp.type=
 async function toggleProduct(p){let {error}=await db.from('catalog_products').update({is_active:p.is_active===false}).eq('id',p.id);if(error)return notice(error.message,true);await loadProducts();notice('Status motif berhasil diubah.')}
 async function deleteProduct(p){if(!confirm('Hapus permanen motif '+p.name+'?'))return;let {error}=await db.from('catalog_products').delete().eq('id',p.id);if(error)return notice('Gagal menghapus: '+error.message,true);if(p.image_path)await db.storage.from(BUCKET).remove([p.image_path]);await loadProducts();notice('Motif berhasil dihapus.')}
 
-/* PDF premium: render each A4 page on-screen to canvas, then save as one PDF. */
+/* PDF V4: draw native PDF pages directly; no HTML screenshots or print dialog. */
 async function openPdfCatalog(){
  const btn=$('downloadCatalogPdf');
  const visible=products.filter(p=>p.is_active!==false&&p.category);
- if(!visible.length)return notice('Belum ada motif aktif untuk dibuat menjadi PDF.',true);
- if(typeof window.html2canvas!=='function'||!window.jspdf?.jsPDF)return notice('Library pembuat PDF belum termuat. Refresh halaman dan coba lagi.',true);
- const groups=[...new Set(visible.map(p=>p.category))].sort((a,b)=>a.localeCompare(b,'id'));
- const safe=escapeHtml;
- const logo='<div class="pdf-logo"><div class="pdf-logo-word"><span>S</span><span>E</span><span>R</span><span>B</span><span>A</span></div><div class="pdf-logo-sub">COLLECTION</div></div>';
- const coverPage='<section class="pdf-front"><div class="pdf-cover-logo">'+logo+'</div><div class="pdf-cover-rule"></div><div class="pdf-edition">LUXURY MATERIAL COLLECTION</div><h1>KATALOG<br>PRODUK</h1><div class="pdf-cover-caption">INTERIOR &amp; EKSTERIOR<br>KOLEKSI MOTIF PILIHAN</div><div class="pdf-cover-bottom">SERBA COLLECTION &nbsp; • &nbsp; PREMIUM CATALOG</div></section>';
- const pages=[coverPage];
- for(const [ci,cat] of groups.entries()){
-  const items=visible.filter(p=>p.category===cat).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.name.localeCompare(b.name,'id'));
-  const prices=[...new Set(items.map(p=>Number(p.price)))];
-  const priceLabel=prices.length===1?rupiah(prices[0])+' / pcs':'Harga katalog: konfirmasi admin';
-  const cover=coverPathFor(cat,false);
-  for(let start=0;start<items.length;start+=4){
-   const chunk=items.slice(start,start+4);
-   const coverHtml=cover?'<img class="pdf-category-cover" crossorigin="anonymous" src="'+safe(imageUrl(cover))+'" alt="">':'';
-   const cards=chunk.map(p=>'<article class="pdf-motif"><div class="pdf-motif-image">'+(p.image_path?'<img crossorigin="anonymous" src="'+safe(imageUrl(p.image_path))+'" alt="'+safe(p.name)+'">':'<span>SERBA COLLECTION</span>')+'</div><div class="pdf-motif-name">'+safe(p.name)+'</div></article>').join('');
-   pages.push('<section class="pdf-category"><div class="pdf-category-head"><div class="pdf-category-title"><div class="pdf-kicker">SERBA COLLECTION &nbsp; / &nbsp; KOLEKSI '+String(ci+1).padStart(2,'0')+(start?' &nbsp; • &nbsp; LANJUTAN':'')+'</div><h2>'+safe(cat)+'</h2><div class="pdf-universal-price">HARGA KATALOG &nbsp; '+safe(priceLabel)+'</div><div class="pdf-count">'+items.length+' PILIHAN MOTIF</div></div>'+coverHtml+'</div><div class="pdf-motif-grid">'+cards+'</div></section>');
-  }
+ if(!visible.length)return notice('Belum ada motif aktif untuk dibuat PDF.',true);
+ if(!window.jspdf?.jsPDF)return notice('Library PDF belum termuat. Refresh website.',true);
+ const old=btn.textContent;btn.disabled=true;btn.textContent='Menyiapkan PDF…';
+ const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+ const W=210,H=297;
+ const gold=[211,166,83],cream=[251,232,190],muted=[185,161,123];
+ function rect(x,y,w,h,r,g,b){pdf.setFillColor(r,g,b);pdf.rect(x,y,w,h,'F')}
+ function background(){
+  // Dense horizontal strips create a smooth, print-stable black-to-gold gradient.
+  for(let y=0;y<H;y+=1.5){const t=y/H;const glow=Math.max(0,1-Math.abs(t-.47)*2.1);rect(0,y,W,1.6,Math.round(8+glow*27),Math.round(7+glow*18),Math.round(7+glow*7))}
+  pdf.setDrawColor(117,83,37);pdf.setLineWidth(.25);
+  for(let i=-210;i<430;i+=18){pdf.line(i,0,i+155,297)}
+  pdf.setDrawColor(...gold);pdf.setLineWidth(.35);pdf.rect(8,8,194,281);
+  pdf.setDrawColor(75,54,29);pdf.line(15,15,195,15);
  }
- pages.push('<section class="pdf-last">'+logo+'<h2>Terima Kasih</h2><p>Temukan material pilihan untuk setiap ruang impian Anda.</p><div class="pdf-last-wa">KONSULTASI &amp; PEMESANAN<br><strong>0813-8995-786</strong></div></section>');
- const stage=document.createElement('div');stage.className='pdf-render-stage';stage.setAttribute('aria-hidden','true');
- const status=document.createElement('div');status.className='pdf-render-status';status.textContent='Menyiapkan katalog PDF premium…';
- document.body.append(stage,status);
- const oldLabel=btn.textContent;btn.disabled=true;btn.textContent='Membuat PDF…';
- const originalScrollY=window.scrollY;
+ function txt(text,x,y,size=12,color=cream,style='normal',align='left',maxWidth=180){
+  pdf.setFont('helvetica',style);pdf.setFontSize(size);pdf.setTextColor(...color);
+  const lines=pdf.splitTextToSize(String(text),maxWidth);
+  pdf.text(lines,x,y,{align,baseline:'alphabetic'});return lines.length*size*.36;
+ }
+ function logo(x,y,scale=1){
+  pdf.setFillColor(255,255,255);pdf.roundedRect(x-42*scale,y-12*scale,84*scale,30*scale,3*scale,3*scale,'F');
+  const letters=['S','E','R','B','A'],colors=[[22,116,184],[230,179,45],[0,166,165],[230,92,69],[83,165,106]];
+  pdf.setFont('helvetica','bold');pdf.setFontSize(29*scale);
+  letters.forEach((letter,i)=>{pdf.setTextColor(...colors[i]);pdf.text(letter,x+(-32+i*15.6)*scale,y+7*scale)});
+  pdf.setTextColor(36,36,36);pdf.setFontSize(6.7*scale);pdf.text('C O L L E C T I O N',x,y+14*scale,{align:'center'});
+ }
+ function header(cat,price,count,continued){
+  background();txt('SERBA COLLECTION  /  PREMIUM MATERIALS',17,25,9,gold,'bold');
+  pdf.setDrawColor(...gold);pdf.setLineWidth(.6);pdf.line(17,31,193,31);
+  txt(cat,17,49,24,cream,'bold','left',175);
+  txt(continued?'KOLEKSI MOTIF  •  LANJUTAN':'KOLEKSI MOTIF',17,61,9,muted,'normal');
+  txt('HARGA KATALOG',17,75,9,muted,'bold');txt(price,17,86,18,gold,'bold');
+  txt(count+' PILIHAN MOTIF',193,86,9,muted,'normal','right');
+  pdf.setDrawColor(100,75,38);pdf.line(17,93,193,93);
+ }
+ function pageNumber(n){txt('SERBA COLLECTION',17,283,8,muted);txt(String(n).padStart(2,'0'),193,283,8,muted,'normal','right')}
+ async function loadImage(path){
+  if(!path)return null;
+  try{
+   const response=await fetch(imageUrl(path),{mode:'cors'});if(!response.ok)throw Error('HTTP '+response.status);
+   const blob=await response.blob();if(!blob.type.startsWith('image/'))throw Error('Bukan gambar');
+   const bitmap=await createImageBitmap(blob);
+   const canvas=document.createElement('canvas');const limit=1100;const ratio=Math.min(1,limit/Math.max(bitmap.width,bitmap.height));
+   canvas.width=Math.max(1,Math.round(bitmap.width*ratio));canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
+   const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+   bitmap.close?.();return {data:canvas.toDataURL('image/jpeg',.88),width:canvas.width,height:canvas.height};
+  }catch(e){console.warn('Foto PDF tidak dapat dimuat:',path,e);return null}
+ }
+ function placeImage(img,x,y,w,h){if(!img)return false;const ratio=Math.min(w/img.width,h/img.height);const iw=img.width*ratio,ih=img.height*ratio;pdf.addImage(img.data,'JPEG',x+(w-iw)/2,y+(h-ih)/2,iw,ih,undefined,'FAST');return true}
  try{
-  const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-  for(let i=0;i<pages.length;i++){
-   status.textContent='Membuat PDF premium — halaman '+(i+1)+' dari '+pages.length;
-   stage.innerHTML=pages[i];
-   const images=[...stage.querySelectorAll('img')];
-   await Promise.all(images.map(img=>new Promise(resolve=>{
-    if(img.complete)return resolve();
-    img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});
-    setTimeout(resolve,10000);
-   })));
-   if(document.fonts?.ready)await document.fonts.ready;
-   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-   const canvas=await window.html2canvas(stage,{scale:1.5,useCORS:true,allowTaint:false,backgroundColor:'#090807',width:794,height:1123,windowWidth:Math.max(window.innerWidth,794),scrollX:0,scrollY:-window.scrollY,logging:false});
-   if(!canvas.width||!canvas.height)throw Error('Gagal merender halaman '+(i+1));
-   const ctx=canvas.getContext('2d');const pixels=ctx.getImageData(0,0,Math.min(30,canvas.width),Math.min(30,canvas.height)).data;
-   let allWhite=true;for(let j=0;j<pixels.length;j+=4){if(pixels[j]<245||pixels[j+1]<245||pixels[j+2]<245){allWhite=false;break}}
-   if(allWhite)throw Error('Halaman '+(i+1)+' terdeteksi kosong. PDF tidak disimpan.');
-   if(i)pdf.addPage();
-   pdf.addImage(canvas.toDataURL('image/jpeg',0.91),'JPEG',0,0,210,297,undefined,'FAST');
+  // Page 1: fully native vector cover, cannot be blank because it does not depend on images.
+  background();logo(105,74,1.42);
+  pdf.setDrawColor(...gold);pdf.setLineWidth(.65);pdf.line(38,125,172,125);
+  txt('L U X U R Y   M A T E R I A L   C O L L E C T I O N',105,141,10,gold,'bold','center');
+  txt('KATALOG',105,175,36,cream,'bold','center');txt('PRODUK',105,194,36,cream,'bold','center');
+  txt('INTERIOR  &  EKSTERIOR',105,224,12,gold,'normal','center');
+  txt('MATERIAL PILIHAN UNTUK RUANG IMPIAN',105,235,9,muted,'normal','center');
+  txt('SERBA COLLECTION  •  PREMIUM CATALOG',105,272,9,gold,'normal','center');
+  const groups=[...new Set(visible.map(p=>p.category))].sort((a,b)=>a.localeCompare(b,'id'));
+  let page=1,missing=0;
+  for(const cat of groups){
+   const items=visible.filter(p=>p.category===cat).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.name.localeCompare(b.name,'id'));
+   const prices=[...new Set(items.map(p=>Number(p.price)))];
+   const universal=prices.length===1?rupiah(prices[0])+' / pcs':'Hubungi admin untuk harga katalog';
+   for(let start=0;start<items.length;start+=4){
+    pdf.addPage();page++;header(cat,universal,items.length,start>0);
+    for(let j=0;j<Math.min(4,items.length-start);j++){
+     const item=items[start+j],col=j%2,row=Math.floor(j/2),x=17+col*90,y=101+row*81;
+     const img=await loadImage(item.image_path);
+     if(!placeImage(img,x,y,85,65)){missing++;txt('FOTO BELUM TERSEDIA',x+42.5,y+32,9,muted,'normal','center')}
+     const name=String(item.name||'Motif');txt(name.length>52?name.slice(0,49)+'…':name,x+42.5,y+72,10,cream,'bold','center',82);
+    }
+    pageNumber(page);
+   }
   }
+  pdf.addPage();page++;background();logo(105,82,1.15);
+  txt('TERIMA KASIH',105,159,29,cream,'bold','center');
+  txt('Konsultasi dan pemesanan melalui admin',105,179,12,muted,'normal','center');
+  txt('0813-8995-786',105,202,21,gold,'bold','center');pageNumber(page);
+  const blob=pdf.output('blob');if(blob.size<10000)throw Error('Ukuran PDF terlalu kecil; proses dibatalkan.');
   pdf.save('SERBA-COLLECTION-Katalog-Premium.pdf');
-  notice('PDF premium berhasil dibuat ('+pages.length+' halaman). Periksa folder Unduhan.');
- }catch(e){console.error('Gagal membuat PDF:',e);notice('PDF tidak berhasil dibuat: '+e.message,true)}
- finally{stage.remove();status.remove();btn.disabled=false;btn.textContent=oldLabel;window.scrollTo(0,originalScrollY)}
+  notice('PDF berhasil dibuat: '+page+' halaman.'+(missing?' '+missing+' foto tidak dapat dimuat; periksa izin akses gambar.':''),missing>0);
+ }catch(e){console.error('PDF V4:',e);notice('Gagal membuat PDF: '+e.message,true)}
+ finally{btn.disabled=false;btn.textContent=old}
 }
 $('downloadCatalogPdf').onclick=openPdfCatalog;
 
