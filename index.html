@@ -540,4 +540,37 @@ function scHandleDeepLink(){const id=new URLSearchParams(window.location.search)
 /* === akhir ekstensi V11 === */
 
 init();
-</script></body></html>
+</script><style>
+/* SERBA: galeri inspirasi hybrid, tidak mengubah form/keranjang */
+#scInstallGallery{margin:22px 0;padding:19px;border:1px solid #bda46d;border-radius:17px;background:linear-gradient(140deg,#17212b,#1c1725);color:#f6eee2}
+#scInstallGallery h3{margin:0 0 5px;color:#f0d5a0}#scInstallGallery p{margin:0 0 12px;color:#d2c9c4;font-size:13px}
+.scig-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.scig-tabs button{padding:9px 13px;border:1px solid #a78d65;border-radius:10px;background:#29242e;color:#f5e9d6;cursor:pointer}.scig-tabs button[aria-selected=true]{background:#57416d;border-color:#d6b9ed;color:white}
+.scig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}.scig-card{background:#242630;border:1px solid #615466;border-radius:12px;padding:8px;min-width:0}.scig-card button{width:100%;padding:0;border:0;background:transparent;cursor:zoom-in}.scig-card img{width:100%;height:145px;object-fit:cover;border-radius:8px;background:#131720}.scig-card strong{display:block;font-size:12px;margin:5px 0;color:#f4e5d3;overflow-wrap:anywhere}.scig-card small{display:block;font-size:11px;color:#d2c9c4;overflow-wrap:anywhere}.scig-note{font-size:12px!important;color:#dbc6e8!important;margin-top:10px!important}
+@media(max-width:520px){#scInstallGallery{padding:12px}.scig-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scig-card img{height:110px}}
+</style>
+<script>
+/* Galeri Inspirasi Pemasangan: admin terverifikasi + Wikimedia Commons (internet).
+   Gambar internet bukan bukti motif identik. Tidak ada scraping Google Lens. */
+(function(){
+ 'use strict';
+ const cache=new Map();let requestSeq=0;
+ const $g=id=>document.getElementById(id);
+ function node(tag,cls,txt){const el=document.createElement(tag);if(cls)el.className=cls;if(txt!==undefined)el.textContent=txt;return el}
+ function clean(v){return String(v||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim()}
+ function photosFromAdmin(p){return (typeof scInspirations!=='undefined'?scInspirations:[]).filter(x=>String(x.product_id)===String(p.id)&&x.image_path)}
+ function showImage(url,title){if(typeof showImageViewer==='function')showImageViewer(url,title);else window.open(url,'_blank','noopener')}
+ function card(url,title,credit,source){const c=node('div','scig-card'),b=node('button'),img=node('img');b.type='button';img.loading='lazy';img.referrerPolicy='no-referrer';img.alt=title;img.src=url;img.onerror=()=>c.remove();b.append(img);b.onclick=()=>showImage(url,title);c.append(b,node('strong','',title));if(credit)c.append(node('small','',credit));if(source){const note=node('small','','Sumber: Wikimedia Commons');note.title=source;c.append(note)}return c}
+ function queryFor(p){const category=clean(p.category),name=clean(p.name),code=clean(p.code||p.sku);const color=/light coffee|dark coffee|walnut|cream|grey|gray|white|black|gold|brown|oak|teak|beige|silver/i.exec(name)?.[0]||'';
+ const kind=/wpc.*outdoor|outdoor.*wpc/i.test(category+' '+name)?'WPC composite outdoor cladding fence':/spc/i.test(category)?'SPC vinyl plank flooring':/vinyl/i.test(category)?'vinyl flooring installation':/kisi.*plafon/i.test(category)?'wood slat ceiling interior':/kisi|partisi/i.test(category)?'wood slat room divider':/wallboard|wallpanel|wpc panel/i.test(category)?'decorative wall panels interior':/stone|marble/i.test(category)?'stone wall cladding interior':category+' installation';
+ return [kind,color].filter(Boolean).join(' ')}
+ async function internetPhotos(p){const q=queryFor(p);if(cache.has(q))return cache.get(q);const url=new URL('https://commons.wikimedia.org/w/api.php');url.search=new URLSearchParams({action:'query',generator:'search',gsrsearch:'filetype:bitmap '+q,gsrnamespace:'6',gsrlimit:'12',prop:'imageinfo',iiprop:'url|extmetadata|size',iiurlwidth:'600',format:'json',origin:'*'}).toString();const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),9000);try{const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();const pages=Object.values(data.query?.pages||{});const found=pages.map(page=>{const info=page.imageinfo?.[0];const meta=info?.extmetadata||{};const thumb=info?.thumburl||info?.url;const mime=info?.mime||'';if(!thumb||!/^image\/(jpeg|png|webp)$/i.test(mime))return null;return {url:thumb,title:clean(page.title.replace(/^File:/,'')),credit:clean(meta.Artist?.value||meta.Credit?.value||'Karya pihak ketiga').slice(0,120),source:info.descriptionurl||'',license:clean(meta.LicenseShortName?.value||'Lisensi lihat sumber')}}).filter(Boolean).slice(0,6);cache.set(q,found);return found}finally{clearTimeout(timeout)}}
+ function render(p){const order=$g('orderView');if(!order)return;let host=$g('scInstallGallery');if(!host){host=node('section');host.id='scInstallGallery';const anchor=$g('scCompSection')||$g('scOrderShare');if(anchor&&anchor.parentNode===order)order.insertBefore(host,anchor);else order.append(host)}host.replaceChildren();host.append(node('h3','','Inspirasi Pemasangan'),node('p','','Contoh hasil pemasangan untuk membantu membayangkan penggunaan material. Foto produk asli tetap ada di bagian atas.'));
+ const tabs=node('div','scig-tabs'),gallery=node('div','scig-grid'),note=node('p','scig-note');host.append(tabs,gallery,note);const admin=photosFromAdmin(p),seq=++requestSeq;
+ function setTab(mode){tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.mode===mode)));gallery.replaceChildren();if(mode==='admin'){if(!admin.length)gallery.append(node('p','','Belum ada foto pemasangan terverifikasi untuk motif ini.'));else for(const x of admin)gallery.append(card(imageUrl(x.image_path),x.title||p.name,'Foto pilihan admin SERBA COLLECTION',''));note.textContent='Foto dari galeri admin, dipasangkan dengan kode produk ini.';return}
+ gallery.append(node('p','','Mencari gambar inspirasi dari internet…'));note.textContent='Referensi internet mungkin berbeda warna, ukuran, tekstur, atau merek. Bukan foto produk SERBA COLLECTION.';
+ internetPhotos(p).then(items=>{if(seq!==requestSeq||tabs.querySelector('[aria-selected="true"]')?.dataset.mode!=='internet')return;gallery.replaceChildren();if(!items.length){gallery.append(node('p','','Belum ditemukan foto internet yang sesuai. Gunakan galeri admin atau coba produk lain.'));return}for(const x of items)gallery.append(card(x.url,x.title,x.credit+' · '+x.license,x.source))}).catch(()=>{if(seq!==requestSeq)return;gallery.replaceChildren();gallery.append(node('p','','Pencarian internet sedang tidak tersedia. Foto admin tetap dapat digunakan.'))})}
+ for(const [mode,label] of [['admin','✓ Foto Admin'],['internet','🌐 Inspirasi Internet']]){const b=node('button','',label);b.type='button';b.dataset.mode=mode;b.onclick=()=>setTab(mode);tabs.append(b)}setTab(admin.length?'admin':'internet')}
+ const original=openOrder;openOrder=function(p){original(p);render(p)};
+})();
+</script>
+</body></html>
