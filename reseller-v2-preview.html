@@ -329,15 +329,21 @@ async function openPdfCatalog(){
   pdf.addImage(OFFICIAL_LOGO,'PNG',x-imgW/2,y-11*scale,imgW,imgH,undefined,'FAST');
  }
  function header(cat,price,count,continued){
-  rect(0,0,W,H,248,244,235);pdf.setDrawColor(214,190,143);pdf.setLineWidth(.3);pdf.line(12,12,198,12);txt('SERBA COLLECTION  /  PREMIUM MATERIALS',17,25,9,[113,83,42],'bold');
-  pdf.setDrawColor(...gold);pdf.setLineWidth(.6);pdf.line(17,31,193,31);
-  txt(cat,17,40,19,[44,34,27],'bold','left',175);
-  txt(continued?'KOLEKSI MOTIF  •  LANJUTAN':'KOLEKSI MOTIF',17,47,8,[108,94,77],'normal');
-  txt(RESELLER?'HARGA RESELLER':'HARGA KATALOG',17,54,8,[108,94,77],'bold');txt(price,17,61,13,[130,93,37],'bold');
-  txt(count+' PILIHAN MOTIF',193,61,8,[108,94,77],'normal','right');
-  pdf.setDrawColor(100,75,38);pdf.line(17,64,193,64);
+  // Warm charcoal gradient with restrained architectural linework.
+  for(let i=0;i<99;i++){const t=Math.sin(Math.PI*i/98);rect(0,i*3,W,3.1,Math.round(17+24*t),Math.round(15+17*t),Math.round(13+10*t));}
+  pdf.setDrawColor(83,63,38);pdf.setLineWidth(.18);
+  for(let i=0;i<7;i++){pdf.line(143+i*8,0,210,48-i*5);pdf.line(0,250+i*6,42+i*7,297);}
+  pdf.setDrawColor(153,117,61);pdf.setLineWidth(.25);pdf.rect(8,8,194,281);
+  txt('SERBA COLLECTION  /  PREMIUM MATERIALS',17,20,9,gold,'bold');
+  pdf.setDrawColor(...gold);pdf.setLineWidth(.45);pdf.line(17,25,193,25);
+  let titleSize=19;pdf.setFont('helvetica','bold');pdf.setFontSize(titleSize);while(pdf.getTextWidth(cat)>175&&titleSize>9){pdf.setFontSize(--titleSize);}
+  txt(cat,17,36,titleSize,cream,'bold','left',175);
+  txt(continued?'KOLEKSI MOTIF - LANJUTAN':'KOLEKSI MOTIF',17,45,8,muted);
+  txt(RESELLER?'HARGA RESELLER':'HARGA KATALOG',17,53,8,muted,'bold');txt(price,17,61,13,cream,'bold');
+  txt(count+' PILIHAN MOTIF',193,61,8,muted,'normal','right');
+  pdf.setDrawColor(153,117,61);pdf.line(17,64,193,64);
  }
- function pageNumber(n){txt('SERBA COLLECTION',17,283,8,[105,91,72]);txt(String(n).padStart(2,'0'),193,283,8,[105,91,72],'normal','right')}
+ function pageNumber(n){pdf.setDrawColor(153,117,61);pdf.setLineWidth(.2);pdf.line(17,278,193,278);txt('SERBA COLLECTION',17,283,8,gold);txt(String(n).padStart(2,'0'),193,283,8,cream,'normal','right')}
  async function loadImage(path){
   if(!path)return null;
   try{
@@ -362,8 +368,6 @@ async function openPdfCatalog(){
   txt('SERBA COLLECTION  •  PREMIUM CATALOG',105,272,9,gold,'normal','center');
   const groups=[...new Set(visible.map(p=>p.category))].sort((a,b)=>a.localeCompare(b,'id'));
   let page=1,missing=0;
-  let tocPages=Math.ceil(groups.length/23), nextPage=2+tocPages;
-  for(let k=0;k<tocPages;k++){pdf.addPage();page++;rect(0,0,W,H,248,244,235);txt('DAFTAR ISI',17,25,24,[44,34,27],'bold');for(const [i,cat] of groups.slice(k*23,k*23+23).entries()){txt(cat,17,42+i*10,10,[44,34,27],'normal','left',155);txt(nextPage,193,42+i*10,10,[44,34,27],'bold','right');nextPage+=Math.ceil(visible.filter(p=>p.category===cat).length/9)}pageNumber(page)}
   for(const cat of groups){
    const items=visible.filter(p=>p.category===cat).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.name.localeCompare(b.name,'id'));
    const prices=[...new Set(items.map(p=>Number(p.price)))].filter(n=>Number.isFinite(n)&&n>0);
@@ -371,10 +375,10 @@ async function openPdfCatalog(){
    for(let start=0;start<items.length;start+=9){
     pdf.addPage();page++;header(cat,universal,items.length,start>0);
     for(let j=0;j<Math.min(9,items.length-start);j++){
-     const item=items[start+j],col=j%3,row=Math.floor(j/3),x=17+col*60,y=68+row*70;
+     const item=items[start+j],col=j%3,row=Math.floor(j/3),x=17+col*60,y=68+row*68;
      const img=await loadImage(item.image_path);
-     if(!placeImage(img,x,y,56,51)){missing++;txt('FOTO BELUM TERSEDIA',x+28,y+25,9,[105,91,72],'normal','center')}
-     const name=String(item.name||'Motif');txt(name.length>52?name.slice(0,49)+'…':name,x+28,y+56,9,[43,34,25],'bold','center',55);
+     if(!placeImage(img,x,y,56,51)){missing++;txt('FOTO BELUM TERSEDIA',x+28,y+25,9,muted,'normal','center')}
+     const name=String(item.name||'Motif');txt(name.length>52?name.slice(0,49)+'…':name,x+28,y+56,9,cream,'bold','center',55);
     }
     pageNumber(page);
    }
