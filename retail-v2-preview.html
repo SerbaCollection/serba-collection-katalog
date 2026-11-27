@@ -1025,5 +1025,20 @@ const render=renderPublicMotifs;renderPublicMotifs=function(){render();for(const
 cartRefresh();
 })();
 
+
+(function scBulkRetail15(){
+let busy=false;
+const old=renderAdminMotifs;
+renderAdminMotifs=function(){old();if(!admin||!session||!adminCategory||RESELLER)return;
+let panel=$('scBulkRetail15');if(!panel){panel=document.createElement('section');panel.id='scBulkRetail15';panel.className='panel';$('bulkUploader').before(panel)}
+panel.replaceChildren();const cat=adminCategory,items=byCat(cat,false),ids=items.map(p=>p.id);
+const h=document.createElement('h3');h.textContent='Edit Harga Massal Retail';const info=document.createElement('p');info.className='muted';const prices=items.map(p=>Number(p.price)).filter(Number.isFinite);info.textContent=cat+' · '+items.length+' motif (termasuk motif tersembunyi)'+(prices.length?' · Harga saat ini: '+rupiah(Math.min(...prices))+(Math.max(...prices)!==Math.min(...prices)?' – '+rupiah(Math.max(...prices)):''):'');
+const label=document.createElement('label');label.textContent='Harga retail baru per motif (Rp)';const input=document.createElement('input');input.type='number';input.min='1';input.step='1';input.placeholder='Contoh: 89800';label.append(input);
+const preview=document.createElement('p');preview.setAttribute('role','status');const button=document.createElement('button');button.type='button';button.className='btn';button.textContent='Simpan Harga Semua Motif';function paint(){const v=Number(input.value),ok=input.value.trim()!==''&&Number.isSafeInteger(v)&&v>0;button.disabled=busy||!ok||!ids.length;preview.textContent=ok?'Harga baru: '+rupiah(v)+' × '+ids.length+' motif. Harga reseller tidak berubah.':'Masukkan harga baru untuk seluruh motif kategori ini.'}input.oninput=paint;
+button.onclick=async()=>{if(busy||!admin||!session||adminCategory!==cat||!navigator.onLine)return;const v=Number(input.value);if(!Number.isSafeInteger(v)||v<=0||!ids.length)return;if(!confirm('Ubah harga RETAIL seluruh '+ids.length+' motif kategori '+cat+' menjadi '+rupiah(v)+' per unit? Harga berbeda sebelumnya akan ditimpa.'))return;busy=true;paint();input.disabled=true;let saved=false;try{const result=await db.from('catalog_products').update({price:v}).eq('category',cat).select('id');if(result.error)throw result.error;saved=true;const count=result.data?.length??0;await loadProducts();notice('Harga retail diperbarui untuk '+count+' motif kategori '+cat+'.'+(count!==ids.length?' Jumlah berbeda dari tampilan awal; periksa kembali kategori.':''),count!==ids.length)}catch(e){notice((saved?'Harga telah dikirim, tetapi pemuatan ulang gagal: ':'Gagal memperbarui harga: ')+e.message,true)}finally{busy=false;input.disabled=false;paint();const current=$('scBulkRetail15');if(current&&current!==panel||current&&!current.contains(input)){const n=current.querySelector('input');if(n)n.dispatchEvent(new Event('input'))}}};
+panel.append(h,info,label,preview,button);paint();
+};
+})();
+
 init();
 </script></body></html>
