@@ -1145,7 +1145,7 @@ el('sc43Intensity').oninput=e=>{p.intensity[mode()]=Number(e.target.value);save(
 const button=document.createElement('button');button.type='button';button.textContent='⚙';button.title='Kenyamanan tampilan';button.setAttribute('aria-label','Kenyamanan tampilan');button.onclick=()=>{paint();dialog.showModal();el('scThemeToggle').click()};menu.append(button);
 new MutationObserver(records=>{if(records.some(r=>r.attributeName==='data-personal'||r.attributeName==='style'))capture();else paint()}).observe(b,{attributes:true,attributeFilter:['data-personal','class']});
 for(const id of ['orderView','imageViewer','cartOverlay']){const e=el(id);if(e)new MutationObserver(paint).observe(e,{attributes:true,attributeFilter:['class','style','hidden','open']})}
-mobile.addEventListener('change',paint);reduced.addEventListener('change',paint);capture();
+document.getElementById('scColourPalette')?.addEventListener('click',e=>{if(e.target.closest('button'))capture()});mobile.addEventListener('change',paint);reduced.addEventListener('change',paint);capture();
 })();
 
 init();
